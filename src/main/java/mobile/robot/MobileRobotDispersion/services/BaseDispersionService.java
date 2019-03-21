@@ -1,6 +1,7 @@
 package mobile.robot.MobileRobotDispersion.services;
 
 import lombok.Getter;
+import mobile.robot.MobileRobotDispersion.logger.FileLogger;
 import mobile.robot.MobileRobotDispersion.model.graph.Node;
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
 import mobile.robot.MobileRobotDispersion.model.robot.Robot;
@@ -14,6 +15,8 @@ public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engin
 
     @Getter
     protected int round;
+
+    protected FileLogger logger;
 
     public void init(Graph graph) {
         this.graph = graph;
@@ -70,6 +73,11 @@ public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engin
     @Override
     public int degreeOfCurrentNode(int robotId) {
         return graph.getNodes().get(graph.getRobots().get(robotId).getMovingTo()).degree();
+    }
+
+    @Override
+    public void dock(Robot robot) {
+        this.graph.getNodes().get(robot.getMovingTo()).setSettledRobotId(robot.getId());
     }
 
     /// Engine interface

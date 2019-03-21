@@ -1,15 +1,21 @@
 package mobile.robot.MobileRobotDispersion.services;
 
+import mobile.robot.MobileRobotDispersion.logger.FileLogger;
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
 import mobile.robot.MobileRobotDispersion.model.robot.Robot;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 @SessionScope
 public class HelpingSyncDispersionService extends BaseDispersionService {
+
+    public HelpingSyncDispersionService() {
+        this.logger = new FileLogger();
+    }
 
     public void init(Graph graph) {
         super.init(graph);
@@ -18,18 +24,18 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
                     robot.setRound(4 * graph.getNumOfEdges() - 2 * (graph.getNumOfNodes() - 1));
                     robot.init(this, this);
                 });
+
+        logger.log("Init, nodes: " + graph.getNumOfNodes() + ", edges: " + graph.getNumOfEdges() + ", robots: " + graph.getRobots().size());
     }
 
-    public Graph helpingSyncStep() {
+    public TreeMap<Integer, Robot> helpingSyncStep() {
         moveRobots();
-        System.out.println("--1");
         runHelpingSync();
-        System.out.println("--2");
         clearNodes();
-        System.out.println("--3");
+        logStep();
 
         round++;
-        return graph;
+        return graph.getRobots();
     }
 
     private void runHelpingSync() {
@@ -52,6 +58,23 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
         }
 
         return Graph.NO_PORT;
+    }
+
+    private void logStep() {
+        StringBuilder message = new StringBuilder();
+        message.append("Round: ");
+        message.append(round);
+        message.append('\n');
+
+        this.graph.getRobots()
+                .forEach((key, robot) -> message.append("\t Robot " + robot.getId() + ", state: " +
+                        robot.convertStateToString() + ", parent node: " + robot.getParentNode() +
+                        " ,moving to: " + robot.getMovingTo() + "\n"));
+        logger.log(message.toString());
+    }
+
+    public void saveLog() {
+        logger.saveAndClear();
     }
 
 }

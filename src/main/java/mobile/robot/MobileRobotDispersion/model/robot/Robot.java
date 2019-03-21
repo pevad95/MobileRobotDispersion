@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Arrays;
+
 @Data
 @AllArgsConstructor
 public class Robot {
@@ -13,6 +15,7 @@ public class Robot {
         int numOfRobots();
         Robot mutexWinner(int robotId);
         int degreeOfCurrentNode(int robotId);
+        void dock(Robot robot);
     }
 
     public interface Engine {
@@ -73,10 +76,10 @@ public class Robot {
 
     public void helpingSync(int port) {
         if (round >= 0) {
-            System.out.println(round + "> " + state);
-            System.out.println(round + "> " + movingTo);
+            round--;
             if (state != SETTLED) {
                 port_entered = port;
+                parent_ptr = port;
             }
 
             if (state == EXPLORE) {
@@ -92,7 +95,6 @@ public class Robot {
                     } else {
                         state = BACKTRACK;
 
-                        //TODO move through port_entered
                         move(port_entered);
                     }
                 } else {
@@ -112,7 +114,6 @@ public class Robot {
                         state = BACKTRACK;
                     }
 
-                    //TODO move through port_entered
                     move(port_entered);
                 }
             } else if (state == BACKTRACK) {
@@ -134,6 +135,8 @@ public class Robot {
         state = SETTLED;
         this.visited = new boolean[sensor.numOfRobots()];
         this.entry_port = new int[sensor.numOfRobots()];
+        this.sensor.dock(this);
+        Arrays.fill(entry_port, Graph.NO_PORT);
     }
 
     private void move(int port) {
@@ -168,5 +171,18 @@ public class Robot {
 
     public void resetPosition() {
         currentPosition = 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Robot (" + id + "), state: " + state;
+    }
+
+    public String convertStateToString() {
+        switch (state) {
+            case 0: return "EXPLORE";
+            case 1: return "BACKTRACK";
+            default: return "SETTLED";
+        }
     }
 }
