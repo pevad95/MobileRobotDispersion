@@ -36,6 +36,7 @@ public class Robot {
     private double speed;
     private double currentPosition;
     private int id;
+    private int distance;
 
     @JsonIgnore
     private Engine engine;
@@ -141,6 +142,7 @@ public class Robot {
 
     private void move(int port) {
         engine.move(id, port);
+        distance++;
     }
 
     public boolean receiveVisited(int id) {
@@ -184,5 +186,9 @@ public class Robot {
             case 1: return "BACKTRACK";
             default: return "SETTLED";
         }
+    }
+
+    public boolean isSettled() {
+        return state == SETTLED;
     }
 }

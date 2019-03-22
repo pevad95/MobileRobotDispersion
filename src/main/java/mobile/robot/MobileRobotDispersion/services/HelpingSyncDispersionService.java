@@ -18,6 +18,7 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
     }
 
     public void init(Graph graph) {
+        round = START_ROUND;
         super.init(graph);
         this.graph.getRobots()
                 .forEach((key, robot) -> {
@@ -25,23 +26,36 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
                     robot.init(this, this);
                 });
 
-        logger.log("Init, nodes: " + graph.getNumOfNodes() + ", edges: " + graph.getNumOfEdges() + ", robots: " + graph.getRobots().size());
+        logger.log("Init, nodes: " + graph.getNumOfNodes() + ", edges: " + graph.getNumOfEdges() + ", delta: " + graph.getDelta() + ", robots: " + graph.getRobots().size());
     }
 
     public TreeMap<Integer, Robot> helpingSyncStep() {
-        moveRobots();
-        runHelpingSync();
-        clearNodes();
-        logStep();
+        if(!graph.isTerminated()) {
+            moveRobots();
+            runHelpingSync();
+            clearNodes();
+            logStep();
+            checkRobots();
+        }
 
         round++;
         return graph.getRobots();
     }
 
+    public TreeMap<Integer, Robot> helpingSync() {
+        TreeMap<Integer, Robot> robots = null;
+
+        while (!graph.isTerminated()) {
+            robots = helpingSyncStep();
+        }
+
+        return robots;
+    }
+
     private void runHelpingSync() {
         this.graph.getRobots()
                 .forEach((key, robot) -> {
-                    int port = round == 0 ? 0 : findPort(robot);
+                    int port = round == START_ROUND ? 0 : findPort(robot);
                     //robot.setParentNode(robot.getMovingTo());
                     robot.helpingSync(port);
                 });
@@ -60,6 +74,21 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
         return Graph.NO_PORT;
     }
 
+    private void checkRobots() {
+        boolean allRobotsSettled = true;
+        for (int id : graph.getRobots().keySet()) {
+            allRobotsSettled = allRobotsSettled && graph.getRobots().get(id).isSettled();
+
+            if (!allRobotsSettled) {
+                return;
+            }
+        }
+
+        graph.setTerminated(ALGORITHM_TERMINATED);
+        logger.log("TERMINATED, rounds: " + round);
+        logger.saveAndClear();
+    }
+
     private void logStep() {
         StringBuilder message = new StringBuilder();
         message.append("Round: ");
@@ -69,7 +98,7 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
         this.graph.getRobots()
                 .forEach((key, robot) -> message.append("\t Robot " + robot.getId() + ", state: " +
                         robot.convertStateToString() + ", parent node: " + robot.getParentNode() +
-                        " ,moving to: " + robot.getMovingTo() + "\n"));
+                        ", moving to: " + robot.getMovingTo() + ", distance: " + robot.getDistance() + "\n"));
         logger.log(message.toString());
     }
 

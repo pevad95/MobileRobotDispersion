@@ -44,6 +44,16 @@ public class DispersionAlgorithmsController extends BaseController {
         }
     }
 
+    @PostMapping("/helpingSync")
+    public ResponseEntity<TreeMap<Integer, Robot>> helpingSync() {
+        try {
+            return ResponseEntity.ok(helpingSyncDispersionService.helpingSync());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createBadRequest(e);
+        }
+    }
+
     @PostMapping("/log")
     public ResponseEntity<Boolean> saveLog() {
         helpingSyncDispersionService.saveLog();

@@ -10,6 +10,9 @@ import java.util.TreeMap;
 
 public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engine {
 
+    public static final boolean ALGORITHM_TERMINATED = true;
+    public static final int START_ROUND = 1;
+
     @Getter
     protected Graph graph;
 
@@ -25,6 +28,10 @@ public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engin
     protected void moveRobots() {
         this.graph.getRobots()
                 .forEach((key, robot) -> {
+                    if (robot.isSettled()) {
+                        return;
+                    }
+
                     robot.move();
                     if (robot.arrived()) {
                         Node node = graph.getNodes().get(robot.getMovingTo());

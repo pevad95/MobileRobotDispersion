@@ -21,6 +21,7 @@ public class Graph {
 
     private int delta;
     private int numOfEdges;
+    private boolean terminated;
     private TreeMap<String, Node> nodes;
     private TreeMap<Integer, Robot> robots;
 
