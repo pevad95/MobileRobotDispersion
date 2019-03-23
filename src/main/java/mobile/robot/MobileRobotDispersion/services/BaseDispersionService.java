@@ -3,12 +3,13 @@ package mobile.robot.MobileRobotDispersion.services;
 import lombok.Getter;
 import mobile.robot.MobileRobotDispersion.logger.FileLogger;
 import mobile.robot.MobileRobotDispersion.model.graph.Node;
+import mobile.robot.MobileRobotDispersion.model.robot.Computer;
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
 import mobile.robot.MobileRobotDispersion.model.robot.Robot;
 
 import java.util.TreeMap;
 
-public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engine {
+public abstract class BaseDispersionService {
 
     public static final boolean ALGORITHM_TERMINATED = true;
     public static final int START_ROUND = 1;
@@ -19,10 +20,14 @@ public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engin
     @Getter
     protected int round;
 
+    @Getter
+    protected Computer computer;
+
     protected FileLogger logger;
 
     public void init(Graph graph) {
         this.graph = graph;
+        this.computer = new Computer(graph);
     }
 
     protected void moveRobots() {
@@ -38,7 +43,7 @@ public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engin
                         if (!node.getArrivingRobots().contains(robot.getId())) {
                             node.getArrivingRobots().add(robot.getId());
                         }
-                        robot.resetPosition();
+                        //robot.resetPosition();
                     }
                 });
 
@@ -52,48 +57,39 @@ public abstract class BaseDispersionService implements Robot.Sensor, Robot.Engin
                 });
     }
 
-    /// Sensor interface
+    protected void checkRobots() {
+        boolean allRobotsSettled = true;
+        for (int id : graph.getRobots().keySet()) {
+            allRobotsSettled = allRobotsSettled && graph.getRobots().get(id).isSettled();
 
-    @Override
-    public Robot settledRobotAtCurrentNode(int robotId) {
-        Robot actualRobot = this.graph.getRobots().get(robotId);
-
-        try {
-            return graph.getRobots().get(graph.getNodes().get(actualRobot.getMovingTo()).getSettledRobotId());
-        } catch (Exception e) {
-            return null;
+            if (!allRobotsSettled) {
+                return;
+            }
         }
+
+        graph.setTerminated(ALGORITHM_TERMINATED);
+        logger.log("TERMINATED, rounds: " + round);
+        logger.saveAndClear();
     }
 
-    @Override
-    public int numOfRobots() {
-        return graph.getNodes().size();
+    protected void logStep() {
+        StringBuilder message = new StringBuilder();
+        message.append("Round: ");
+        message.append(round);
+        message.append('\n');
+
+        this.graph.getRobots()
+                .forEach((key, robot) -> message.append("\t Robot " + robot.getId() + ", state: " +
+                        robot.convertStateToString() + ", parent node: " + robot.getParentNode() +
+                        ", moving to: " + robot.getMovingTo() + ", distance: " + robot.getDistance() + ", speed: " + robot.getSpeed() +  "\n"));
+        logger.log(message.toString());
     }
 
-    @Override
-    public Robot mutexWinner(int robotId) {
-        TreeMap<Integer, Robot> robots = graph.getRobots();
-
-        return robots.get(graph.getNodes().get(robots.get(robotId).getMovingTo()).mutex());
+    protected double getRandomSpeed() {
+        return Math.random();
     }
 
-    @Override
-    public int degreeOfCurrentNode(int robotId) {
-        return graph.getNodes().get(graph.getRobots().get(robotId).getMovingTo()).degree();
-    }
-
-    @Override
-    public void dock(Robot robot) {
-        this.graph.getNodes().get(robot.getMovingTo()).setSettledRobotId(robot.getId());
-    }
-
-    /// Engine interface
-
-    @Override
-    public void move(int robotId, int port) {
-        Robot robot = graph.getRobots().get(robotId);
-        Node currentNode = graph.getNodes().get(robot.getMovingTo());
-        robot.setParentNode(robot.getMovingTo());
-        robot.setMovingTo(currentNode.getPorts().get(port));
+    public void saveLog() {
+        logger.saveAndClear();
     }
 }

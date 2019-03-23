@@ -2,7 +2,6 @@ package mobile.robot.MobileRobotDispersion.controllers;
 
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
 import mobile.robot.MobileRobotDispersion.model.robot.Robot;
-import mobile.robot.MobileRobotDispersion.services.BaseDispersionService;
 import mobile.robot.MobileRobotDispersion.services.HelpingSyncDispersionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,20 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.TreeMap;
 
 @RestController
-@RequestMapping("/api/dispersion")
-public class DispersionAlgorithmsController extends BaseController {
+@RequestMapping("/api/helpingSync")
+public class HelpingSyncDispersionAlgorithmController extends BaseController {
 
-    public static final boolean OK = true;
     private HelpingSyncDispersionService helpingSyncDispersionService;
 
     @Autowired
-    public DispersionAlgorithmsController(HelpingSyncDispersionService helpingSyncDispersionService) {
+    public HelpingSyncDispersionAlgorithmController(HelpingSyncDispersionService helpingSyncDispersionService) {
         this.helpingSyncDispersionService = helpingSyncDispersionService;
-    }
-
-    @GetMapping("/supported")
-    public ResponseEntity<String> supportedAlgorithms() {
-        return ResponseEntity.ok("HELPING-SYNC, HELPING_ASYNC, INDEPENDENT-ASYNC");
     }
 
     @PostMapping("/init")
@@ -34,7 +27,7 @@ public class DispersionAlgorithmsController extends BaseController {
         return ResponseEntity.ok(OK);
     }
 
-    @PostMapping("/helpingSyncStep")
+    @PostMapping("/step")
     public ResponseEntity<TreeMap<Integer, Robot>> helpingSyncStep() {
         try {
             return ResponseEntity.ok(helpingSyncDispersionService.helpingSyncStep());
@@ -44,7 +37,7 @@ public class DispersionAlgorithmsController extends BaseController {
         }
     }
 
-    @PostMapping("/helpingSync")
+    @PostMapping("/run")
     public ResponseEntity<TreeMap<Integer, Robot>> helpingSync() {
         try {
             return ResponseEntity.ok(helpingSyncDispersionService.helpingSync());

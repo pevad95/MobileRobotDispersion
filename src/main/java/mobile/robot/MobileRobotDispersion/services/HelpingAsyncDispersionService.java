@@ -10,9 +10,9 @@ import java.util.TreeMap;
 
 @Service
 @SessionScope
-public class HelpingSyncDispersionService extends BaseDispersionService {
+public class HelpingAsyncDispersionService extends BaseDispersionService {
 
-    public HelpingSyncDispersionService() {
+    public HelpingAsyncDispersionService() {
         this.logger = new FileLogger();
     }
 
@@ -23,17 +23,19 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
         this.graph.getRobots()
                 .forEach((key, robot) -> {
                     robot.setRound(maxRounds);
+                    robot.setSpeed(getRandomSpeed());
+                    robot.setCurrentPosition(Robot.MAX_SPEED);
                     robot.init(this.computer, this.computer);
                 });
 
-        logger.log("Helping-sync init, nodes: " + graph.getNumOfNodes() + ", edges: " + graph.getNumOfEdges() + ", delta: " + graph.getDelta() +
+        logger.log("Helping-async init, nodes: " + graph.getNumOfNodes() + ", edges: " + graph.getNumOfEdges() + ", delta: " + graph.getDelta() +
                 ", robots: " + graph.getRobots().size() + ", max rounds: " + maxRounds);
     }
 
-    public TreeMap<Integer, Robot> helpingSyncStep() {
+    public TreeMap<Integer, Robot> helpingAsyncStep() {
         if(!graph.isTerminated()) {
             moveRobots();
-            runHelpingSync();
+            runHelpingAsync();
             clearNodes();
             logStep();
             checkRobots();
@@ -43,21 +45,23 @@ public class HelpingSyncDispersionService extends BaseDispersionService {
         return graph.getRobots();
     }
 
-    public TreeMap<Integer, Robot> helpingSync() {
+    public TreeMap<Integer, Robot> helpingAsync() {
         TreeMap<Integer, Robot> robots = null;
 
         while (!graph.isTerminated()) {
-            robots = helpingSyncStep();
+            robots = helpingAsyncStep();
         }
 
         return robots;
     }
 
-    private void runHelpingSync() {
+    private void runHelpingAsync() {
         this.graph.getRobots()
                 .forEach((key, robot) -> {
-                    int port = round == START_ROUND ? 0 : computer.findPort(robot);
-                    robot.helpingSync(port);
+                    if (robot.arrived()) {
+                        int port = round == START_ROUND ? 0 : computer.findPort(robot);
+                        robot.helpingAsync(port);
+                    }
                 });
     }
 

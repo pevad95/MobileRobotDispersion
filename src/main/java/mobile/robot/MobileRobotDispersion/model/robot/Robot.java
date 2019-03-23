@@ -132,6 +132,10 @@ public class Robot {
         }
     }
 
+    public void helpingAsync(int port) {
+        helpingSync(port);
+    }
+
     private void dock() {
         state = SETTLED;
         this.visited = new boolean[sensor.numOfRobots()];
