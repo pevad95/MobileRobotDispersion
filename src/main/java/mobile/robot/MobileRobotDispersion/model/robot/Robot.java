@@ -141,6 +141,7 @@ public class Robot {
         this.visited = new boolean[sensor.numOfRobots()];
         this.entry_port = new int[sensor.numOfRobots()];
         this.sensor.dock(this);
+        this.resetPosition();
         Arrays.fill(entry_port, Graph.NO_PORT);
     }
 
