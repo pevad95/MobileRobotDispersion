@@ -4,12 +4,12 @@ import mobile.robot.MobileRobotDispersion.logger.FileLogger;
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
 import mobile.robot.MobileRobotDispersion.model.robot.Robot;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
+import org.springframework.web.context.annotation.ApplicationScope;
 
 import java.util.TreeMap;
 
 @Service
-@SessionScope
+@ApplicationScope
 public class HelpingAsyncDispersionService extends BaseDispersionService {
 
     public HelpingAsyncDispersionService() {

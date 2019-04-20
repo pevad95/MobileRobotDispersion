@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Stack;
 
 @Data
 @AllArgsConstructor
@@ -51,6 +53,7 @@ public class Robot {
     private int round;
     private boolean[] visited;
     private int[] entry_port;
+    private Stack<Integer> stack;
 
     public Robot() {
         parentNode = "";
@@ -75,8 +78,14 @@ public class Robot {
         this.engine = engine;
     }
 
+    public void initIndependentAsync(Sensor sensor, Engine engine) {
+        init(sensor, engine);
+        stack = new Stack<>();
+        visited = new boolean[sensor.numOfRobots()];
+    }
+
     public void helpingSync(int port) {
-        if (round >= 0) {
+        //if (round >= 0) {
             round--;
             if (state != SETTLED) {
                 port_entered = port;
@@ -129,11 +138,48 @@ public class Robot {
 
                 move(port_entered);
             }
-        }
+        //}
     }
 
     public void helpingAsync(int port) {
         helpingSync(port);
+    }
+
+    public void independentAsync(int port) {
+        round--;
+
+        //if (round > 0) {
+            port_entered = port;
+        //}
+
+        if (state == EXPLORE) {
+            Robot settledRobot = sensor.settledRobotAtCurrentNode(id);
+            if (Objects.nonNull(settledRobot) && visited[settledRobot.getId()]) {
+                state = BACKTRACK;
+                move(port_entered);
+            } else if (Objects.nonNull(settledRobot) && !visited[settledRobot.getId()]) {
+                visited[settledRobot.getId()] = VISITED;
+                moveTowardsInIndependentCase();
+            } else if (Objects.isNull(settledRobot)) {
+
+                Robot mutexWinner = sensor.mutexWinner(id);
+                if (Objects.nonNull(mutexWinner) && mutexWinner.getId() == id) {
+                    dockInIndependentCase();
+                } else if (Objects.nonNull(mutexWinner)) {
+                    visited[mutexWinner.getId()] = VISITED;
+                    moveTowardsInIndependentCase();
+                }
+            }
+        } else if (state == BACKTRACK) {
+            increasePortEntered();
+            if (port_entered != stack.peek()) {
+                state = EXPLORE;
+            } else {
+                stack.pop();
+            }
+
+            move(port_entered);
+        }
     }
 
     private void dock() {
@@ -145,9 +191,31 @@ public class Robot {
         Arrays.fill(entry_port, Graph.NO_PORT);
     }
 
+    private void dockInIndependentCase() {
+        state = SETTLED;
+        this.sensor.dock(this);
+        this.resetPosition();
+    }
+
+    private void moveTowardsInIndependentCase() {
+        stack.push(port_entered);
+        increasePortEntered();
+
+        if (port_entered == stack.peek()) {
+            state = BACKTRACK;
+            stack.pop();
+        }
+
+        move(port_entered);
+    }
+
     private void move(int port) {
         engine.move(id, port);
         distance++;
+    }
+
+    private void increasePortEntered() {
+        port_entered = (port_entered + 1) % sensor.degreeOfCurrentNode(id);
     }
 
     public boolean receiveVisited(int id) {

@@ -5,9 +5,6 @@ import mobile.robot.MobileRobotDispersion.logger.FileLogger;
 import mobile.robot.MobileRobotDispersion.model.graph.Node;
 import mobile.robot.MobileRobotDispersion.model.robot.Computer;
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
-import mobile.robot.MobileRobotDispersion.model.robot.Robot;
-
-import java.util.TreeMap;
 
 public abstract class BaseDispersionService {
 

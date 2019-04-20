@@ -2,7 +2,7 @@ package mobile.robot.MobileRobotDispersion.controllers;
 
 import mobile.robot.MobileRobotDispersion.model.robot.Graph;
 import mobile.robot.MobileRobotDispersion.model.robot.Robot;
-import mobile.robot.MobileRobotDispersion.services.HelpingSyncDispersionService;
+import mobile.robot.MobileRobotDispersion.services.IndependentAsyncDispersionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,28 +10,27 @@ import org.springframework.web.bind.annotation.*;
 import java.util.TreeMap;
 
 @RestController
-@RequestMapping("/api/helpingSync")
-@CrossOrigin
-public class HelpingSyncDispersionAlgorithmController extends BaseController {
+@RequestMapping("/api/independentAsync")
+public class IndependentAsyncDispersionAlgorithmController extends BaseController {
 
-    private HelpingSyncDispersionService helpingSyncDispersionService;
+    private IndependentAsyncDispersionService independentAsyncDispersionService;
 
     @Autowired
-    public HelpingSyncDispersionAlgorithmController(HelpingSyncDispersionService helpingSyncDispersionService) {
-        this.helpingSyncDispersionService = helpingSyncDispersionService;
+    public IndependentAsyncDispersionAlgorithmController(IndependentAsyncDispersionService independentAsyncDispersionService) {
+        this.independentAsyncDispersionService = independentAsyncDispersionService;
     }
 
     @PostMapping("/init")
     public ResponseEntity<Boolean> init(@RequestBody Graph graph) {
-        helpingSyncDispersionService.init(graph);
+        independentAsyncDispersionService.init(graph);
 
         return ResponseEntity.ok(OK);
     }
 
     @PostMapping("/step")
-    public ResponseEntity<TreeMap<Integer, Robot>> helpingSyncStep() {
+    public ResponseEntity<TreeMap<Integer, Robot>> independentAsyncStep() {
         try {
-            return ResponseEntity.ok(helpingSyncDispersionService.helpingSyncStep());
+            return ResponseEntity.ok(independentAsyncDispersionService.independentAsyncStep());
         } catch (Exception e) {
             e.printStackTrace();
             return createBadRequest(e);
@@ -39,9 +38,9 @@ public class HelpingSyncDispersionAlgorithmController extends BaseController {
     }
 
     @PostMapping("/run")
-    public ResponseEntity<TreeMap<Integer, Robot>> helpingSync() {
+    public ResponseEntity<TreeMap<Integer, Robot>> independentAsync() {
         try {
-            return ResponseEntity.ok(helpingSyncDispersionService.helpingSync());
+            return ResponseEntity.ok(independentAsyncDispersionService.independentAsnyc());
         } catch (Exception e) {
             e.printStackTrace();
             return createBadRequest(e);
@@ -50,13 +49,12 @@ public class HelpingSyncDispersionAlgorithmController extends BaseController {
 
     @PostMapping("/log")
     public ResponseEntity<Boolean> saveLog() {
-        helpingSyncDispersionService.saveLog();
+        independentAsyncDispersionService.saveLog();
         return ResponseEntity.ok(OK);
     }
 
     @GetMapping("/graph")
     public ResponseEntity<Graph> getGraph() {
-        return ResponseEntity.ok(helpingSyncDispersionService.getGraph());
+        return ResponseEntity.ok(independentAsyncDispersionService.getGraph());
     }
-
 }

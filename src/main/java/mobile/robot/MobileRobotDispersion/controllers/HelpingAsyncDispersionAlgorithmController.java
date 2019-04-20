@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 @RestController
 @RequestMapping("/api/helpingAsync")
+@CrossOrigin
 public class HelpingAsyncDispersionAlgorithmController extends BaseController {
 
     private HelpingAsyncDispersionService helpingAsyncDispersionService;
