@@ -57,4 +57,7 @@ public class IndependentAsyncDispersionAlgorithmController extends BaseControlle
     public ResponseEntity<Graph> getGraph() {
         return ResponseEntity.ok(independentAsyncDispersionService.getGraph());
     }
+
+    @GetMapping("/terminated")
+    public ResponseEntity<Boolean> isTerminated() { return ResponseEntity.ok(independentAsyncDispersionService.isTerminated()); }
 }

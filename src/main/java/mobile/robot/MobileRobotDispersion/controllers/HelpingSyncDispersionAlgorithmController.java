@@ -59,4 +59,7 @@ public class HelpingSyncDispersionAlgorithmController extends BaseController {
         return ResponseEntity.ok(helpingSyncDispersionService.getGraph());
     }
 
+    @GetMapping("/terminated")
+    public ResponseEntity<Boolean> isTerminated() { return ResponseEntity.ok(helpingSyncDispersionService.isTerminated()); }
+
 }

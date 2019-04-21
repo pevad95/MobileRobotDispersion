@@ -58,4 +58,7 @@ public class HelpingAsyncDispersionAlgorithmController extends BaseController {
     public ResponseEntity<Graph> getGraph() {
         return ResponseEntity.ok(helpingAsyncDispersionService.getGraph());
     }
+
+    @GetMapping("/terminated")
+    public ResponseEntity<Boolean> isTerminated() { return ResponseEntity.ok(helpingAsyncDispersionService.isTerminated()); }
 }

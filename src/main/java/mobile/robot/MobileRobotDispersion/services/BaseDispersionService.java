@@ -89,4 +89,8 @@ public abstract class BaseDispersionService {
     public void saveLog() {
         logger.saveAndClear();
     }
+
+    public boolean isTerminated() {
+        return graph.isTerminated();
+    }
 }
