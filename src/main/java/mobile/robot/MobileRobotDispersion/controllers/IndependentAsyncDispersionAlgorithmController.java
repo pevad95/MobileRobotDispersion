@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 @RestController
 @RequestMapping("/api/independentAsync")
+@CrossOrigin
 public class IndependentAsyncDispersionAlgorithmController extends BaseController {
 
     private IndependentAsyncDispersionService independentAsyncDispersionService;

@@ -83,7 +83,7 @@ public abstract class BaseDispersionService {
     }
 
     protected double getRandomSpeed() {
-        return Math.random();
+        return Math.random() * 0.6 + 0.4;
     }
 
     public void saveLog() {
